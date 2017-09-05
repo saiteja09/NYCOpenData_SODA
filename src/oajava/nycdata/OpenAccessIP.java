@@ -3,7 +3,8 @@
  * Copyright (c) MIT License 1995-2017 Progress Software Corporation. All Rights Reserved.
  *
  *
- * Description:    OpenAccess IP where you would have to implement various inherited methods from the interface oajava.sql.ip to build your very own Custom ODBC/JDBC driver
+ * Description:    OpenAccess IP where you would have to implement various inherited methods from the 
+ * interface oajava.sql.ip to build your very own Custom ODBC/JDBC driver
  */
 
 package oajava.nycdata;
