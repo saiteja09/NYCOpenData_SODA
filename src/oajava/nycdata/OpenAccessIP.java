@@ -1,12 +1,10 @@
-/* damip.java
+/* OpenAccessIP.java
  *
- * Copyright (c) 1995-2012 Progress Software Corporation. All Rights Reserved.
+ * Copyright (c) MIT License 1995-2017 Progress Software Corporation. All Rights Reserved.
  *
  *
- * Description:     Template DAM IP
- *                  - is implemented in "JAVA"
- *                  - supports SELECT operations
- *					- Support Dynamic Schema
+ * Description:    OpenAccess IP where you would have to implement various inherited methods from the 
+ * interface oajava.sql.ip to build your very own Custom ODBC/JDBC driver
  */
 
 package oajava.nycdata;
