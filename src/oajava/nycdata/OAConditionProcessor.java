@@ -94,6 +94,7 @@ public class OAConditionProcessor {
                 //Extract the Condition contents
                 OAConditionInfo condInfo = new OAConditionInfo(dam_hstmt, hcond);
                 listOfConditions.add(condInfo);
+                //long dam_getNextCond(long hstmt, long hlist)
                 hcond = jdam.dam_getNextCond(dam_hstmt,
                         hCondList);
             }

@@ -396,6 +396,9 @@ public class OpenAccessIP implements oajava.sql.ip
                         if(tableInfo.getColumnsinTable(pColSearchObj.getTableName().toUpperCase()) == null ) {
                             columnMeta = restHelper.getMetadata(resourceUniqueId, m_tmHandle);
                             tableInfo.addcolumnstoTable(pColSearchObj.getTableName().toUpperCase(), columnMeta);
+                        }else
+                        {
+                            columnMeta = tableInfo.getColumnsinTable(pColSearchObj.getTableName().toUpperCase());
                         }
                         for(Map.Entry<String, Integer> currentcolumn: columnMeta.entrySet())
                         {
@@ -411,6 +414,9 @@ public class OpenAccessIP implements oajava.sql.ip
                         if( tableInfo.getColumnsinTable(pColSearchObj.getTableName().toUpperCase()) == null ) {
                             columnMeta = restHelper.getMetadata(resourceUniqueId, m_tmHandle);
                             tableInfo.addcolumnstoTable(pColSearchObj.getTableName().toUpperCase(), columnMeta);
+                        }else
+                        {
+                            columnMeta = tableInfo.getColumnsinTable(pColSearchObj.getTableName().toUpperCase());
                         }
                         for(Map.Entry<String, Integer> currentcolumn: columnMeta.entrySet())
                         {

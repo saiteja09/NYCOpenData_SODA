@@ -1,12 +1,11 @@
 package oajava.nycdata;
 
-import javafx.scene.control.Tab;
+
 import oajava.sql.*;
 import org.json.JSONArray;
 import org.json.JSONObject;
 
 import java.net.MalformedURLException;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;

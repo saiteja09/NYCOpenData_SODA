@@ -8,6 +8,6 @@
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
     <orderEntry type="library" exported="" name="oasql" level="project" />
-    <orderEntry type="library" exported="" name="json-20170516" level="project" />
+    <orderEntry type="library" name="json-20170516" level="project" />
   </component>
 </module>

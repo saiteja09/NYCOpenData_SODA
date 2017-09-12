@@ -1,10 +1,6 @@
 package oajava.nycdata;
 
 import oajava.sql.*;
-
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Locale;
 import java.util.Map;
 
 import static oajava.sql.ip.*;
