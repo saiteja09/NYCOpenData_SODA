@@ -10,11 +10,10 @@
 package oajava.nycdata;
 
 import oajava.sql.*;
+import org.apache.commons.lang.time.DateUtils;
 
 import java.net.MalformedURLException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 /* define the class template to implement the sample IP */
 public class OpenAccessIP implements oajava.sql.ip
@@ -100,34 +99,26 @@ public class OpenAccessIP implements oajava.sql.ip
     {
 		String str = null;
         jdam.trace(m_tmHandle, UL_TM_F_TRACE,"ipGetInfo called\n");
-        /*switch (iInfoType) {
-            case IP_INFO_QUALIFIER_TERMW:
-                //The term used to describe what the first part of the three-part object name refers to.
-                str = "NYCDATA";
-                break;
-
-            case IP_INFO_OWNER_TERMW:
-                //The term used to refer to the second part of the three part object name. The value is returned as a string.
-                str = "dbo";
-                break;
-
-            case IP_INFO_QUALIFIER_NAMEW:
-                //Return the default qualifier value for this connection. If CREATE VIEW/DROP VIEW commands do not specify the qualifier, this value is used as the qualifier.
-                // The value returned here and the value returned as the TABLE_QUALIFIER for the table/column objects within this database must match.
+        switch (iInfoType) {
+            case ip.IP_INFO_QUALIFIER_NAMEW:
                 str = "NYCPARKING";
                 break;
 
-            case IP_INFO_OWNER_NAMEW:
-	            /* The IP should return the current login name or a fixed name like "OAUSER".
-	            The owner name is used by the OpenAccess SDK SQL engine as the default owner name during query validation.*/
-                //str = "OAUSER";
-         /*       break;
-            default:
-                jdam.trace(m_tmHandle, UL_TM_F_TRACE, "ipGetInfo(): Information type:"+ iInfoType +" is out of range\n");
+
+            case ip.IP_INFO_SUPPORT_VALUE_FOR_RESULT_ALIAS:
+            case ip.IP_INFO_VALIDATE_TABLE_WITH_OWNER:
+                str = "0"; /* false */
                 break;
-        }*/
 
+            case ip.IP_INFO_FILTER_VIEWS_WITH_QUALIFIER_NAME:
+            case ip.IP_INFO_CONVERT_NUMERIC_VAL:
+            case ip.IP_INFO_TABLE_ROWSET_REPORT_MEMSIZE_LIMIT:
+                str = "1"; /* true */
+                break;
 
+            default:
+                break;
+        }
         return str;
    }
 
@@ -359,7 +350,7 @@ public class OpenAccessIP implements oajava.sql.ip
 					schemaobj_table  pTableSearchObj = (schemaobj_table) pSearchObj;
 
                     //If user is querying on a table, then pTableSearchObj will not be null. You would have to check if the table indeed exists and send the info about table.
-					if (pTableSearchObj != null)
+					if (pTableSearchObj != null && pTableSearchObj.getTableName() != null)
 					{
                         jdam.trace(m_tmHandle, UL_TM_MAJOR_EV, "Dynamic Schema  of table:<"+pTableSearchObj.getTableQualifier()+"."+pTableSearchObj.getTableOwner()+"."+pTableSearchObj.getTableName()+"> is being requested\n");
                         if(pTableSearchObj.getTableName().equalsIgnoreCase("NYCOPENDATA")) {
@@ -388,7 +379,7 @@ public class OpenAccessIP implements oajava.sql.ip
 					schemaobj_column pColSearchObj = (schemaobj_column) pSearchObj;
                     //If user is querying on a table, then pTableSearchObj will not be null. If its not null you would have to send the columns for the table requested else you need to send all columns for all tables
                     //In the example, we have only 1 table, so the code will be the same for both the conditions
-					if (pColSearchObj != null)
+					if (pColSearchObj != null && pColSearchObj.getTableName() != null)
 					{
                         HashMap<String, Integer> columnMeta = null;
                         if(tableInfo.getColumnsinTable(pColSearchObj.getTableName().toUpperCase()) == null ) {
@@ -483,5 +474,157 @@ public class OpenAccessIP implements oajava.sql.ip
     {
 			jdam.trace(m_tmHandle, UL_TM_F_TRACE,"ipProcedureDynamic called\n");
             return IP_FAILURE;
+    }
+
+    //scalar functions decalaration
+    public scalar_function[] ipGetScalarFunctions()
+    {
+        scalar_function[] MyFuncs = new scalar_function[1];
+        MyFuncs[0]=new scalar_function("DATETRUNC", 1, "ip_func_datetrunc", XO_TYPE_TIMESTAMP , 2);
+        return MyFuncs;
+    }
+
+    //scalar function datetrunc implemetation
+    public long ip_func_datetrunc(long hstmt, long pMemTree, long hValExpList)
+    {
+        long hVal;
+        long hValExp;
+        Date truncatedDate = null;
+
+
+        xo_int piRetCode = new xo_int(0);
+        hValExp = jdam.dam_getFirstValExp(hValExpList);
+        long hValExp2 = jdam.dam_getNextValExp(hValExpList);
+
+        String intervalObj = (String)jdam.dam_getValueOfExp(pMemTree, hValExpList, hValExp, XO_TYPE_CHAR, piRetCode);
+        if(piRetCode.getVal() != DAM_SUCCESS)
+            return 0;
+        String dateObj = (String) jdam.dam_getValueOfExp(pMemTree, hValExpList, hValExp2, XO_TYPE_CHAR, piRetCode);
+        if(piRetCode.getVal() != DAM_SUCCESS)
+            return 0;
+
+        if(dateObj == null || intervalObj == null)
+        {
+            hVal = jdam.dam_createVal(pMemTree, XO_TYPE_TIMESTAMP, null, XO_NULL_DATA);
+            return hVal;
+        }
+
+
+        Date inputDate = null;
+        try {
+            inputDate = getParsedDate(dateObj);
+        }
+        catch (Exception ex)
+        {
+            jdam.dam_addError(0, 0, DAM_IP_ERROR, 0, "Exception in DATETRUNC: Unable to Parse the date \n");
+            jdam.trace(m_tmHandle, UL_TM_F_TRACE, "Exception in DATETRUNC: Unable to Parse the date \n");
+            return IP_FAILURE;
+        }
+        switch (intervalObj.toLowerCase())
+        {
+            case "millisecond":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.MILLISECOND);
+                break;
+            case "second":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.SECOND);
+                break;
+            case "minute":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.MINUTE);
+                break;
+            case "hour":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.HOUR);
+                break;
+
+            case "day":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.DATE);
+                break;
+
+            case "week":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.WEEK_OF_MONTH);
+                break;
+
+            case "month":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.MONTH);
+                break;
+
+            case "year":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.YEAR);
+                break;
+            case "monday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.MONDAY);
+                break;
+            case "tuesday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.TUESDAY);
+                break;
+            case "wednesday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.WEDNESDAY);
+                break;
+            case "thursday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.THURSDAY);
+                break;
+            case "friday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.FRIDAY);
+                break;
+            case "saturday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.SATURDAY);
+                break;
+            case "sunday":
+                truncatedDate = DateUtils.truncate(inputDate, Calendar.SUNDAY);
+                break;
+        }
+
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(truncatedDate);
+
+        xo_tm truncatedTMObj = new xo_tm(calendar.get(Calendar.YEAR), calendar.get(Calendar.MONTH), calendar.get(Calendar.DAY_OF_MONTH), calendar.get(Calendar.HOUR_OF_DAY), calendar.get(Calendar.MINUTE), calendar.get(Calendar.SECOND), calendar.get(Calendar.MILLISECOND));
+
+        hVal = jdam.dam_createVal(pMemTree, XO_TYPE_TIMESTAMP, truncatedTMObj, XO_NTS);
+
+        return  hVal;
+    }
+
+    public Date getParsedDate(String dateString) throws Exception
+    {
+        String[] patterns = new String[23];
+        patterns[0] = "yyyy-MM-dd";
+
+        patterns[1] = "yyyy-MM-dd hh:mm:ss";
+        patterns[2] = "yyyy-MM-dd'T'hh:mm:ss";
+        patterns[3] = "yyyy-MM-dd'T'hh:mm:ss'Z'";
+
+        patterns[4] = "yyyy-MM-dd hh:mm:ss.S";
+        patterns[5] = "yyyy-MM-dd hh:mm:ss.SS";
+        patterns[6] = "yyyy-MM-dd hh:mm:ss.SSS";
+        patterns[7] = "yyyy-MM-dd hh:mm:ss.SSSS";
+        patterns[8] = "yyyy-MM-dd hh:mm:ss.SSSSS";
+        patterns[9] = "yyyy-MM-dd hh:mm:ss.SSSSSS";
+
+
+        patterns[10] = "yyyy-MM-dd'T'hh:mm:ss.S";
+        patterns[11] = "yyyy-MM-dd'T'hh:mm:ss.SS";
+        patterns[12] = "yyyy-MM-dd'T'hh:mm:ss.SSS";
+        patterns[13] = "yyyy-MM-dd'T'hh:mm:ss.SSSS";
+        patterns[14] = "yyyy-MM-dd'T'hh:mm:ss.SSSSS";
+        patterns[15] = "yyyy-MM-dd'T'hh:mm:ss.SSSSSS";
+
+        patterns[16] = "yyyy-MM-dd'T'hh:mm:ss.S'Z'";
+        patterns[17] = "yyyy-MM-dd'T'hh:mm:ss.SS'Z'";
+        patterns[18] = "yyyy-MM-dd'T'hh:mm:ss.SSS'Z'";
+        patterns[19] = "yyyy-MM-dd'T'hh:mm:ss.SSSS'Z'";
+        patterns[20] = "yyyy-MM-dd'T'hh:mm:ss.SSSSS'Z'";
+        patterns[21] = "yyyy-MM-dd'T'hh:mm:ss.SSSSSS'Z'";
+
+        patterns[22] = "yyyy-MM-dd'T'hh:mm:ss.SSSSSSSXXX";
+
+        Date inputDate = null;
+        try {
+            inputDate = DateUtils.parseDate(dateString, patterns);
+        }
+        catch (Exception ex)
+        {
+            throw ex;
+        }
+
+        return inputDate;
     }
 }

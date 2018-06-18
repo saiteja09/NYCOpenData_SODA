@@ -29,7 +29,7 @@ public class OA_IPHelper {
         typesInfo[i++] = new oa_types_info("BINARY", -2, 4096, "0x", null, "length", 1, 0, 0, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "BINARY");
         typesInfo[i++] = new oa_types_info("VARBINARY", -3, 4096, "0x", null, "max length", 1, 0, 0, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "VARBINARY");
         typesInfo[i++] = new oa_types_info("LONGVARBINARY", -4, 2147483647, "0x", null, "max length", 1, 0, 0, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "LONGVARBINARY");
-        typesInfo[i++] = new oa_types_info("VARCHAR", 12, 4096, "'", "'", "max length", 1, 1, 3, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "VARCHAR");
+        typesInfo[i++] = new oa_types_info("VARCHAR", 12, 500, "'", "'", "max length", 1, 1, 3, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "VARCHAR");
         typesInfo[i++] = new oa_types_info("LONGVARCHAR", -1, 2147483647, "'", "'", "max length", 1, 1, 3, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "LONGVARCHAR");
         typesInfo[i++] = new oa_types_info("DATE", 91, 10, "'", "'", null, 1, 0, 2, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "DATE");
         typesInfo[i++] = new oa_types_info("TIME", 92, 8, "'", "'", null, 1, 0, 2, 0, 0, 0, DAMOBJ_NOTSET, DAMOBJ_NOTSET, "TIME");
@@ -74,7 +74,7 @@ public class OA_IPHelper {
         //If datatype is VARCHAR
         else if(currentcolumn.getValue() == 12)
         {
-            oa_column.SetObjInfo(OA_CATALOG_NAME, OA_USER_NAME, "NYCOPENDATA", currentcolumn.getKey().toUpperCase(), (short)XO_TYPE_VARCHAR, "VARCHAR", 4096, 0, (short)DAMOBJ_NOTSET, (short)0, (short)XO_NULLABLE, (short)DAMOBJ_NOTSET,null,null,(short)DAMOBJ_NOTSET,(short)0,null );
+            oa_column.SetObjInfo(OA_CATALOG_NAME, OA_USER_NAME, "NYCOPENDATA", currentcolumn.getKey().toUpperCase(), (short)XO_TYPE_VARCHAR, "VARCHAR", 500, 0, (short)DAMOBJ_NOTSET, (short)0, (short)XO_NULLABLE, (short)DAMOBJ_NOTSET,null,null,(short)DAMOBJ_NOTSET,(short)0,null );
         }
         //If datatype is TIMESTAMP
         else if(currentcolumn.getValue() == 93)
